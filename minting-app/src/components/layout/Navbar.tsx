@@ -10,7 +10,7 @@ const ConnectWallet = dynamic(() => import('./ConnectWallet'), { ssr: false });
 const Navbar = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position='static'>
+      <AppBar position='static' sx={{ background: 'transparent', boxShadow: 'none' }}>
         <Toolbar sx={{ mx: 3 }}>
           <Typography
             sx={{

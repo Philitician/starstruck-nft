@@ -10,7 +10,6 @@
     "post-update": "echo \"codesandbox preview only, need an update\" && yarn upgrade --latest"
   },
   "dependencies": {
-    "@alch/alchemy-web3": "^1.4.2",
     "@emotion/cache": "latest",
     "@emotion/react": "latest",
     "@emotion/server": "latest",
@@ -25,7 +24,6 @@
     "react-dom": "latest",
     "react-hot-toast": "^2.2.0",
     "react-query": "^3.39.0",
-    "recoil": "^0.7.3-alpha.2",
     "wagmi": "^0.4.3"
   },
   "devDependencies": {

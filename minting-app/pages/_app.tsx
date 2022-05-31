@@ -5,11 +5,11 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import toast from 'react-hot-toast';
 import { QueryCache, QueryClient, QueryClientProvider } from 'react-query';
-import { RecoilRoot } from 'recoil';
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
+import Background from '../src/components/layout/Background';
 import Navbar from '../src/components/layout/Navbar';
 import { alchemyId } from '../src/constants';
 import createEmotionCache from '../src/createEmotionCache';
@@ -58,12 +58,12 @@ export default function MyApp(props: MyAppProps) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <WagmiConfig client={wagmiClient}>
-          <RecoilRoot>
-            <QueryClientProvider client={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <Background>
               <Navbar />
               <Component {...pageProps} />
-            </QueryClientProvider>
-          </RecoilRoot>
+            </Background>
+          </QueryClientProvider>
         </WagmiConfig>
       </ThemeProvider>
     </CacheProvider>

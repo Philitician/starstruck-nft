@@ -1,9 +1,8 @@
 import { Button, Container, Stack, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import { useMemo, useState } from 'react';
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { useAccount } from 'wagmi';
-import useNftRequests from '../../hooks/useNftRequests';
 
 interface NftRequest {
   name: string;
@@ -45,23 +44,30 @@ const RequestNFT = () => {
         </form>
       )}
       {hasRequested && (
-        <>
+        <Stack alignItems='center'>
           <Typography variant='h4'>Request submitted!</Typography>
-          <Typography variant='h4'>For until NFT is minted</Typography>
-        </>
+          <Typography variant='h4'>Wait for your NFT to be minted...</Typography>
+        </Stack>
       )}
     </Container>
   );
 };
 
+const fetchNftRequests = async (walletAddress: string) => {
+  const { data } = await axios.get<boolean>(`/api/hasrequested?walletAddress=${walletAddress}`);
+  return data;
+};
+
 const useHasRequested = () => {
   const account = useAccount();
-  const nftRequests = useNftRequests();
-  const address = account.data?.address;
-  return useMemo(
-    () => nftRequests?.some(({ walletAddress }) => walletAddress === address),
-    [address, nftRequests]
-  );
+  const walletAddress = account.data?.address;
+
+  const { data } = useQuery(['hasrequested'], () => fetchNftRequests(walletAddress!));
+
+  return useMemo(() => {
+    if (!data || !walletAddress) return;
+    return data;
+  }, [walletAddress, data]);
 };
 
 const useAddNftRequest = () => {
@@ -72,8 +78,7 @@ const useAddNftRequest = () => {
   };
   return useMutation((nftRequest: NftRequest) => addRequest(nftRequest), {
     onSettled: (data) => {
-      queryClient.invalidateQueries('nftRequests');
-      console.log('successfully added nft request', data);
+      queryClient.invalidateQueries('hasrequested');
     },
   });
 };

@@ -1,21 +1,21 @@
-import { createAlchemyWeb3, Nft, NftMetadata } from '@alch/alchemy-web3';
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import { useMemo } from 'react';
+import axios from 'axios';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { alchemyUrl, contractAddress } from '../../constants';
-import useGetNftIdOfOwner from '../../hooks/useGetNftUriOfAccount';
+import { useAccount, useContractRead } from 'wagmi';
+import { contractArgs, gatewayBaseUrl } from '../../constants';
+import { Metadata } from '../../types/Metadata';
+import Loader from '../Loader';
 import NftCard from './NftCard';
 import RequestNFT from './RequestNFT';
 
 const DisplayOrRequestNFT = () => {
-  const { id, isSuccess, isLoading, error } = useGetNftIdOfOwner();
-  const nftMetadata = useNftMetadata(id);
+  const { nftUri, isSuccess, isLoading } = useGetNftUriOfAccount();
+  const nftMetadata = useNftMetadata(nftUri);
   return (
     <>
-      {isLoading && <Loading />}
+      {isLoading && <Loader />}
       {!isSuccess && !isLoading && <RequestNFT />}
-      {isSuccess && id && (
+      {isSuccess && nftMetadata && (
         <>
           <NftCard {...nftMetadata} />
         </>
@@ -24,49 +24,54 @@ const DisplayOrRequestNFT = () => {
   );
 };
 
-const Loading = () => {
-  return (
-    <Box sx={{ display: 'flex' }}>
-      <CircularProgress size={150} />
-    </Box>
+const useGetNftUriOfAccount = () => {
+  const account = useAccount();
+  const accountAddress = account?.data?.address;
+
+  const { isSuccess, data, refetch, isLoading } = useContractRead(
+    contractArgs,
+    'getNftUriOfAccount',
+    {
+      args: accountAddress,
+      enabled: false,
+    }
   );
+
+  const nftUri = data as string | undefined;
+
+  useEffect(() => {
+    if (!accountAddress) return;
+    refetch();
+  }, [accountAddress]);
+
+  return { isSuccess, nftUri, isLoading };
 };
 
-interface StarstruckMetadata extends NftMetadata {
-  date: string;
-  location: string;
-}
-
-interface StarstruckMedia {
-  gateway: string;
-}
-
-interface StarstruckNft extends Omit<Nft, 'metadata' | 'media'> {
-  metadata: StarstruckMetadata;
-  media: StarstruckMedia[];
-}
-
-const useNftMetadata = (id: string | undefined) => {
-  const web3 = createAlchemyWeb3(alchemyUrl);
-
-  const getNftMetadata = async (tokenId: string | undefined) => {
-    if (!tokenId) return;
-    const metadata = await web3.alchemy.getNftMetadata({
-      contractAddress,
-      tokenId,
-    });
-    return metadata as StarstruckNft;
+const useNftMetadata = (nftUri: string | undefined): Metadata | undefined => {
+  const retrieveMetadata = async () => {
+    const url = `${gatewayBaseUrl}${cleanUri(nftUri)}`;
+    const { data } = await axios.get<Metadata>(url);
+    return data;
   };
-  const { data } = useQuery(['metadata', id], () => getNftMetadata(id));
+
+  const { data, refetch } = useQuery(['metadata', nftUri], retrieveMetadata, {
+    enabled: false,
+  });
+
+  useEffect(() => {
+    if (!nftUri) return;
+    refetch();
+  }, [nftUri, refetch]);
 
   return useMemo(() => {
-    console.log('data', data);
-    const imgUrl = data?.media?.[0].gateway ?? '';
-    const description = data?.description ?? '';
-    const location = data?.metadata?.location ?? '';
-    const date = data?.metadata?.date ?? '';
-    return { imgUrl, description, location, date };
+    if (!data) return;
+    return {
+      ...data,
+      image: `${gatewayBaseUrl}${cleanUri(data.image)}`,
+    };
   }, [data]);
 };
+
+const cleanUri = (uri: string | undefined) => uri?.replace('ipfs://', '');
 
 export default DisplayOrRequestNFT;
