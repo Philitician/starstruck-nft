@@ -12,7 +12,7 @@ interface NftRequest {
 const RequestNFT = () => {
   const account = useAccount();
   const [name, setName] = useState('');
-  const { mutate } = useAddNftRequest();
+  const { mutate, isLoading, data } = useAddNftRequest();
   const onSubmit = (e: any) => {
     e.preventDefault();
     const walletAddress = account.data?.address;
@@ -22,7 +22,7 @@ const RequestNFT = () => {
   const hasRequested = useHasRequested();
   return (
     <Container maxWidth='sm'>
-      {!hasRequested && (
+      {!hasRequested && !data && !isLoading && (
         <form onSubmit={onSubmit}>
           <Stack direction='column' spacing={2}>
             <TextField
@@ -62,7 +62,7 @@ const useHasRequested = () => {
   const account = useAccount();
   const walletAddress = account.data?.address;
 
-  const { data } = useQuery(['hasrequested'], () => fetchNftRequests(walletAddress!));
+  const { data, isLoading } = useQuery(['hasrequested'], () => fetchNftRequests(walletAddress!));
 
   return useMemo(() => {
     if (!data || !walletAddress) return;
@@ -77,7 +77,7 @@ const useAddNftRequest = () => {
     return data;
   };
   return useMutation((nftRequest: NftRequest) => addRequest(nftRequest), {
-    onSettled: (data) => {
+    onSettled: () => {
       queryClient.invalidateQueries('hasrequested');
     },
   });
