@@ -44,6 +44,9 @@ const useIsOwner = () => {
 
   const { isSuccess, data, refetch, isLoading } = useContractRead(contractArgs, 'owner', {
     enabled: false,
+    onSettled: (data) => {
+      console.log('isowner response: ', data);
+    },
   });
 
   useEffect(() => {

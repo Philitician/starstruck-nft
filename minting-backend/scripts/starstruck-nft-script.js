@@ -20,8 +20,8 @@ async function main() {
   const starstruckNFT = await StarstruckNFT.deploy(
     'Starstruck NFT',
     'SS',
-    100,
-    'ipfs://QmVN1dEwWGAa5CoKoepKjfLuU9rni5T5x3ngZCF6cQKt8p/'
+    108,
+    'ipfs://QmWYrDXg8irPMGzx7UHhi4csETi5Qp2hRLQvnNZuNg9HQT/'
   );
 
   await starstruckNFT.deployed();

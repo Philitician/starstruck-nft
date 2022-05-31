@@ -52,9 +52,9 @@ contract StarstruckNFT is ERC721, Ownable, ERC721Enumerable {
     function setUnpaused() public onlyOwner {
         paused = false;
     }
-    
-    function getMyNftUri() public view returns (string memory) {
-        uint256 tokenId = tokenOfOwnerByIndex(msg.sender, 0);
+
+    function getNftUriOfAccount(address account) public view returns (string memory) {
+        uint256 tokenId = tokenOfOwnerByIndex(account, 0);
         return tokenURI(tokenId);
     }
 
@@ -95,5 +95,4 @@ contract StarstruckNFT is ERC721, Ownable, ERC721Enumerable {
     {
         return super.supportsInterface(interfaceId);
     }
-
 }

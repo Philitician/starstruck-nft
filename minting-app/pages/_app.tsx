@@ -16,7 +16,7 @@ import createEmotionCache from '../src/createEmotionCache';
 import theme from '../src/style/theme';
 
 const { chains, provider } = configureChains(
-  [chain.polygonMumbai],
+  [chain.polygonMumbai, chain.polygon],
   [alchemyProvider({ alchemyId }), publicProvider()]
 );
 

@@ -4,7 +4,7 @@ export const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? '';
 
 export const contractArgs = {
   addressOrName: contractAddress,
-  contractInterface: StarstruckNFT,
+  contractInterface: StarstruckNFT.abi,
 };
 
 export const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID;

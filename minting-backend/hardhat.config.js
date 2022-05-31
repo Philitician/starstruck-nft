@@ -24,11 +24,6 @@ module.exports = {
     hardhat: {
       chainId: 1337,
     },
-    telostest: {
-      url: 'https://testnet.telos.net/evm',
-      account: [PRIVATE_KEY],
-      chainId: 41,
-    },
     mumbai: {
       url: MUMBAI_NODE_URL,
       accounts: [PRIVATE_KEY],
